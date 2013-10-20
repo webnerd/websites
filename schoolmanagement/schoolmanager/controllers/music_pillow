@@ -1,0 +1,84 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Welcome extends CI_Controller {
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Maps to the following URL
+	 * 		http://example.com/index.php/welcome
+	 *	- or -  
+	 * 		http://example.com/index.php/welcome/index
+	 *	- or -
+	 * Since this controller is set as the default controller in 
+	 * config/routes.php, it's displayed at http://example.com/
+	 *
+	 * So any other public methods not prefixed with an underscore will
+	 * map to /index.php/welcome/<method_name>
+	 * @see http://codeigniter.com/user_guide/general/urls.html
+	 */
+	public function index()
+	{
+		$people = range(1,5);
+		$numPeople = count($people);
+		$secInSong = 2;
+		$peopleBackUp = array_flip($people);
+		echo '<pre>'; print_r($people);
+		for($i = 0; $i < ($numPeople - 1);)
+		{
+			$localPeople = array(); // Reindex players/people
+			foreach($people as $person)
+			{
+				$localPeople[] = $person;
+			}
+			
+			$eleminate = 0;
+			if($secInSong <= $numPeople)
+			{
+				$eleminate = $secInSong;
+			}
+			else
+			{
+				$eleminate = ($secInSong % $numPeople);
+			}
+			
+			$part1 = $part2 = array();
+
+			if($eleminate == $numPeople)
+			{	
+				$eleminate = ($eleminate <= 0)?2:$eleminate;
+				$part2 = array_slice($localPeople, 0, $eleminate - 1);
+			}
+			else
+			{
+				if($eleminate !=0)
+				$part1 = array_slice($localPeople, $eleminate);
+				$part2 = array_slice($localPeople, 0, $eleminate - 1);
+			}
+			
+			$newPeople = array();
+			if(!empty($part1) && !empty($part2))
+			{
+				$newPeople = array_merge_recursive($part1, $part2);
+			}
+			elseif(!empty($part1))
+			{
+				$newPeople = array_merge($part1);
+			}
+			else
+			{
+				$newPeople = array_merge($part2);
+			}
+
+			$numPeople--;
+			$people = $newPeople;
+		}
+		echo 'Winner is: '. $people[0]. '<br>' . 'With Tag: '.($peopleBackUp[$people[0]]+1);
+		exit;
+
+		$this->load->view('welcome_message');
+	}
+}
+
+/* End of file welcome.php */
+/* Location: ./application/controllers/welcome.php */

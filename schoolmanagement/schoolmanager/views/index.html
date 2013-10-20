@@ -1,0 +1,73 @@
+<html>
+<head>
+	<title>403 Forbidden</title>
+</head>
+<body>
+
+<p>Directory access is forbidden.</p>
+
+</body>
+</html>
+
+
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Prasad
+ * Date: 10/13/13
+ * Time: 2:28 PM
+ * To change this template use File | Settings | File Templates.
+ */
+
+$formattedMarks = array();
+?>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<ul>
+    <?php
+foreach($marksInAllsubjects as $marks){
+    $formattedMarks[$marks['name']] [] = array('date'=>date("F j, Y", strtotime($marks['date'])),'score'=>$marks['score'],'code'=>$marks['code'],'max_marks'=>$marks['max_marks']);
+    ?>
+
+    <!--li class="subject">
+        <div class="name"><span class="label"> Name</span> <span class="data"><?php echo $marks['name'];?></span></div>
+        <div class="exam-date"><span class="label">Date</span> <span class="data"><?php echo date("F j, Y", strtotime($marks['date']));?></span></div>
+        <div class="score"><span class="label">Score</span> <span class="data"><?php echo $marks['score'];?></span></div>
+    </li-->
+    <?php
+}
+    $maxCount = getMaxScoreCountFromSubject($formattedMarks);
+    $chartData = array();
+
+    foreach($formattedMarks as $subject=>$allMarks){
+    $table = array();
+
+    $rows = array();
+    $table['cols'][] = array('label' => 'X', 'type' => 'string');
+    $table['cols'][] = array('label' => $subject, 'type' => 'number');
+    //$table['cols'][] = array('label' => 'MARKS 2', 'type' => 'number');
+
+    foreach($allMarks as $marks){
+    $chartData[$subject][] = $marks['score'];
+    $temp = array();
+    // each column needs to have data inserted via the $temp array
+    $temp[] = array('v' => $marks['date']);
+    $temp[] = array('v' => (int)$marks['score']);
+    $rows[] = array('c' => $temp);
+    }
+    // insert the temp array into $rows
+
+    $table['rows'] = $rows;
+
+    //echo '<pre>';print_r($table);
+        // encode the table as JSON
+        $jsonTable = json_encode($table);
+        //var_dump($chartData);
+        //var_dump($jsonTable);
+        $data = array();
+        $data['jsonTable'] = $jsonTable;
+        $data['count'] = $subject;
+        $this->load->view(TEMPLATE.'/'.'allSubjectScoreChart',$data);
+    }
+
+?>
+</ul>
