@@ -43,10 +43,11 @@ class Database extends CI_Model
 
     public function getClassAndSectionOfStudent($studentId){
         $this->db->select('section.name as section , class.name as class, class.id as classId')
-                        ->from('cs_lookup')
+                        ->from('css_lookup')
+                        ->join('cs_lookup', 'cs_lookup.id = css_lookup.cs_lookup_id')
                         ->join('class', 'cs_lookup.class_id = class.id')
                         ->join('section', 'cs_lookup.section_id = section.id')
-                        ->where('cs_lookup.student_id',$studentId);
+                        ->where('css_lookup.student_id',$studentId);
         return $this->db->get()->row_array();
     }
 
@@ -169,4 +170,25 @@ class Database extends CI_Model
     }
 
 
+    public function getTeacherClassAssociation($userId)
+    {
+        $this->db->select('cs_lookup.id as cs_lookup_id, class.id as c_id,class.name as c_name,section.id as s_id,section.name as s_name')->from('tcs_lookup')
+            ->join('cs_lookup', 'cs_lookup.id = tcs_lookup.cs_lookup_id')
+            ->join('teacher','teacher.id = tcs_lookup.teacher_id')
+            ->join('class', 'cs_lookup.class_id = class.id')
+            ->join('section', 'cs_lookup.section_id = section.id')
+            ->where('teacher.user_id = '.$userId);
+        $query = $this->db->get();
+        return $this->getResultArray($query);
+    }
+
+    public function getStudentsByClassSectionId($classId,$sectionName)
+    {
+        $this->db->select('*')->from('css_lookup')
+                    ->join('cs_lookup','cs_lookup.id = css_lookup.cs_lookup_id')
+                    ->join('section','section.id = cs_lookup.section_id')
+             ->where(array('css_lookup.status'=>'1','cs_lookup.class_id'=>$classId,'section.name'=>$sectionName));
+        $query = $this->db->get();
+        return $this->getResultArray($query);
+    }
 }

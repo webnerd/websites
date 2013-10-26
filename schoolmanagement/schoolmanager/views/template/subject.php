@@ -103,15 +103,15 @@ if(isset($marksInsubject))
 ?>
 
 <div class="marksTable">
-    
-    <?php foreach($formattedMarks as $subject=>$marks){?>
-        <div class="subject" style="float: left; border:1px solid;margin:10px;padding:10px">
-            <p><?php echo $subject;?></p>
+    <table class="subject">
+    <?php $i=0;foreach($formattedMarks as $subject=>$marks){?>
+            <tr class="<?php echo (($i++)%2) == 0?'even':'odd';?>">
+            <td class="subject_name"><?php echo $subject;?></td>
             <?php foreach($marks as $data){?>
-                <span style="border:1px solid;padding: 5px;"><?php echo $data['score'];?></span>
+                <td class="score"><?php echo $data['score'];?></td>
             <?php } ?>
-        </div>
+            </tr>
     <?php }?>
-    
+    </table>
 </div>
  <div style="clear: both;"></div>

@@ -6,6 +6,7 @@ class Welcome extends MY_Controller {
         $this->load->model('Database');
         $this->load->helper('utility');
     }
+
     /**
      * Index Page for this controller.
      *
@@ -89,9 +90,17 @@ class Welcome extends MY_Controller {
 
     private function teacher()
     {
-
+        $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['userId']);
+        $structure['content'] = 'teacher';
+        $this->load_structure($structure);
     }
 
+    public function studentsInClassSection($classSection)
+    {
+        list($classId,$sectionName) = explode('-',$classSection);
+        $this->data['students'] = $this->Database->getStudentsByClassSectionId($classId,$sectionName);
+        var_dump($this->data['students']);
+    }
     public function logout()
     {
         session_destroy();

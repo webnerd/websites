@@ -42,6 +42,7 @@ $route['student/(:num)'] = "welcome/studentInfo/$1";
 $route['ward/(:num)'] = "welcome/ward/$1";
 $route['exam-series/(.*)'] = "welcome/examSeries/$1";
 $route['subject/(.*)'] = "welcome/subject/$1";
+$route['students/(.*)'] = "welcome/studentsInClassSection/$1";
 $route['logout'] = "welcome/logout";
 $route['default_controller'] = "welcome";
 $route['404_override'] = '';

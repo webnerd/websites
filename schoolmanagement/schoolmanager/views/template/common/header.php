@@ -49,6 +49,28 @@
             font-weight: bold;
             margin-bottom: 1em;
         }
+
+        table.subject .even
+        {
+            background-color: #d4d4d4;
+        }
+
+        table.subject .odd
+        {
+            background-color: #7ab5d3;
+        }
+        table.subject .subject_name
+        {
+            text-align: center;
+            padding:5px;
+            width:10em;
+        }
+        table.subject .score
+        {
+            text-align: center;
+            padding:5px;
+            width:5em;
+        }
     </style>
 </head>
 <body>
