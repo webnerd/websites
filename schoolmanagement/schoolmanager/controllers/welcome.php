@@ -91,15 +91,18 @@ class Welcome extends MY_Controller {
     private function teacher()
     {
         $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['userId']);
+        $this->data['controller'] = 'students';
         $structure['content'] = 'teacher';
         $this->load_structure($structure);
     }
 
     public function studentsInClassSection($classSection)
     {
-        list($classId,$sectionName) = explode('-',$classSection);
-        $this->data['students'] = $this->Database->getStudentsByClassSectionId($classId,$sectionName);
-        var_dump($this->data['students']);
+        list($className,$sectionName) = explode('-',$classSection);
+        $this->data['class'] = $this->Database->getStudentsByClassSectionId($className,$sectionName);
+        $this->data['classSection'] = $classSection;
+        $structure['content'] = 'class';
+        $this->load_structure($structure);
     }
     public function logout()
     {
@@ -137,6 +140,31 @@ class Welcome extends MY_Controller {
         }
 
         $this->load_structure($structure);
+    }
+
+
+    public function attendance()
+    {
+        $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['userId']);
+        $this->data['controller'] = 'attendance/class';
+        $structure['content'] = 'teacher';
+        $this->load_structure($structure);
+    }
+
+    public function classAttendance($classSection)
+    {
+        list($className,$sectionName) = explode('-',$classSection);
+        $this->data['class'] = $this->Database->getStudentsByClassSectionId($className,$sectionName);
+        $studentList = array();
+        foreach($this->data['class'] as $student)
+        {
+            $studentList[]=$student['id'];
+        }
+        $date = date('Y-m-d');
+        $this->data['classAttendance'] = $this->Database->getClassAttendance($studentList,$_SESSION['userId'],$date);
+        $structure['content'] = 'classAttendance';
+        $this->load_structure($structure);
+
     }
 }
 

@@ -38,11 +38,11 @@
             border: 1px solid #D0D0D0;
             -webkit-box-shadow: 0 0 8px #D0D0D0;
         }
-        #header span
+        .header span
         {
             margin:5px;
         }
-        #welcome_note
+        #welcome_note, .class_name
         {
             color:green;
             font-size: large;
@@ -50,14 +50,20 @@
             margin-bottom: 1em;
         }
 
-        table.subject .even
+        table .even, table .even
         {
             background-color: #d4d4d4;
         }
 
-        table.subject .odd
+        table .odd, table .odd
         {
             background-color: #7ab5d3;
+        }
+
+        table tr td
+        {
+            padding:5px;
+            text-align: center;
         }
         table.subject .subject_name
         {
@@ -75,7 +81,7 @@
 </head>
 <body>
 <div id="welcome_note">Welcome <?php echo $_SESSION['username'];?>!!</div>
-<div id="header">
+<div class="header">
     <span><a href="/"> HOME </a></span>
     <span><a href="/logout"> LOGOUT </a></span>
 </div>
