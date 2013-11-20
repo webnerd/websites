@@ -53,8 +53,6 @@
         var options = {
             title: 'User Transaction Statistics',
             is3D: 'true',
-            width: 800,
-            height: 600,
             curveType: "function",
             vAxis: {minValue: 100}
         };
@@ -62,11 +60,14 @@
         // Do not forget to check your div ID
         var chart = new google.visualization.LineChart(document.getElementById('chart_div_<?php echo $count;?>'));
         chart.draw(data, options);
+        $(window).resize(function(){
+            chart.draw(data, options);
+        });
     }
 </script>
 </head>
 
   <body>
   <!--Div that will hold the pie chart-->
-  <div id="chart_div_<?php echo $count;?>" ></div>
+  <div style=" width = 100%;height = 100%" id="chart_div_<?php echo $count;?>" ></div>
   <?PHP // EXIT;?>

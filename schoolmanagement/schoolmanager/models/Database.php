@@ -55,7 +55,7 @@ class Database extends CI_Model
      * To get al valid exams applicable for a student
      */
     public function getExamsForStudent($schoolId,$classId){
-        $this->db->select('exam.*')->from('exam')
+        $this->db->select('exam.id')->from('exam')
                  ->join('exam_series','exam.exam_series_id = exam_series.id')
                  ->join('sc_lookup', 'exam_series.sc_lookup_id = sc_lookup.id')
                  ->where(array('sc_lookup.school_id' => $schoolId,'sc_lookup.class_id' => $classId));

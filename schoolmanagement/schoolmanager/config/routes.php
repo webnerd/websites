@@ -38,10 +38,12 @@
 |
 */
 
-$route['student/(:num)'] = "welcome/studentInfo/$1";
+
+$route['login'] = "welcome/login";
 $route['ward/(:num)'] = "welcome/ward/$1";
 $route['exam-series/(.*)'] = "welcome/examSeries/$1";
 $route['subject/(.*)'] = "welcome/subject/$1";
+$route['student/(.*)'] = "welcome/student/$1";
 $route['students/(.*)'] = "welcome/studentsInClassSection/$1";
 
 $route['attendance'] = "welcome/attendance";
@@ -49,6 +51,7 @@ $route['attendance/class/(.*)'] = "welcome/classAttendance/$1";
 $route['attendance/student/(.*)'] = "welcome/studentAttendance/$1";
 
 $route['logout'] = "welcome/logout";
+$route['(.*)'] = "welcome/index/$1";
 $route['default_controller'] = "welcome";
 $route['404_override'] = '';
 

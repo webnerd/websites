@@ -25,17 +25,18 @@
         ]);*/
         data.addRows(<?php echo json_encode($marks); ?>);
         // Set chart options
-        var options = {'title':'How Much you scored ?',
-            'width':400,
-            'height':300};
+        var options = {'title':'How Much you scored ?'};
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.visualization.PieChart(document.getElementById('chart_div<?php echo $count;?>'));
         chart.draw(data, options);
+        $(window).resize(function(){
+            chart.draw(data, options);
+        });
     }
 </script>
 </head>
 
   <body>
   <!--Div that will hold the pie chart-->
-  <div id="chart_div<?php echo $count;?>" style="width:400; height:300"></div>
+  <div style=" width = 100%;height = 100%" id="chart_div<?php echo $count;?>" style="width:400; height:300"></div>

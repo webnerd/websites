@@ -77,12 +77,33 @@
             padding:5px;
             width:5em;
         }
+        img.ui-datepicker-trigger
+        {
+            position: relative;
+            right: 28px;
+            top: 5px;
+        }
     </style>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $( "#datepicker" ).datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat:'yy-mm-dd',
+                showOn: "button",
+                buttonImage: "/web/images/calendar_icon.jpg",
+                buttonImageOnly: true
+            });
+        });
+    </script>
 </head>
 <body>
 <div id="welcome_note">Welcome <?php echo $_SESSION['username'];?>!!</div>
 <div class="header">
-    <span><a href="/"> HOME </a></span>
+    <span><a href="/<?php echo $_SESSION['username-userid'];?>"> HOME </a></span>
     <span><a href="/logout"> LOGOUT </a></span>
 </div>
 
