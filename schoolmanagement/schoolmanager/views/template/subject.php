@@ -6,7 +6,14 @@
  * Time: 2:28 PM
  * To change this template use File | Settings | File Templates.
  */
-
+?>
+<?php if (isset($_SESSION['subjectId']) && is_numeric($_SESSION['subjectId'])){?><p><a href='/attendance/student'>Attendance </a> </p><?php } ?>
+<!--form action="/attendance/student" method="get">
+    <p>Start Date: <input type="text" name ='startDate' class="datepicker" value="<?php echo $date['startDate'];?>" /></p>
+    <p>End Date: <input type="text" name ='endDate' class="datepicker" value="<?php echo $date['endDate'];?>" /></p>
+    <input type="submit" value="GO" />
+</form-->
+<?php
 $formattedMarks = array();
 ?>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -20,7 +27,7 @@ $formattedMarks = array();
 
 <?php
 
-if(isset($marksInAllsubjects))
+if(isset($marksInAllsubjects) && !empty($marksInAllsubjects))
 {
 
     foreach($marksInAllsubjects as $marks)
@@ -56,12 +63,16 @@ if(isset($marksInAllsubjects))
     foreach($temp as $data){
         $rows[] = array('c' => $data);
     }
-    //$rows[] = array('c' => $temp1);
-    //$rows[] = array('c' => $temp2);
-
+    $table['rows'] = $rows;
+    // encode the table as JSON
+    $jsonTable = json_encode($table);
+    $data = array();
+    $data['jsonTable'] = $jsonTable;
+    $data['count'] = $subject;
+    $this->load->view(TEMPLATE.'/'.'allSubjectScoreChart',$data);
 }
 
-if(isset($marksInsubject))
+if(isset($marksInsubject) && !empty($marksInsubject))
 {
 
     foreach($marksInsubject as $marks)
@@ -88,18 +99,15 @@ if(isset($marksInsubject))
             $rows[] = array('c' => $temp);
         }
     }
-}
-
-
     $table['rows'] = $rows;
     // encode the table as JSON
     $jsonTable = json_encode($table);
-    //var_dump($chartData);
-    //var_dump($jsonTable);
     $data = array();
     $data['jsonTable'] = $jsonTable;
     $data['count'] = $subject;
     $this->load->view(TEMPLATE.'/'.'allSubjectScoreChart',$data);
+}
+
 ?>
 
 <div class="marksTable">

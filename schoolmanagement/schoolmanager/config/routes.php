@@ -48,8 +48,8 @@ $route['students/(.*)'] = "welcome/studentsInClassSection/$1";
 
 $route['attendance'] = "welcome/attendance";
 $route['attendance/class/(.*)'] = "welcome/classAttendance/$1";
+$route['attendance/student'] = "welcome/studentAttendance";
 $route['attendance/student/(.*)'] = "welcome/studentAttendance/$1";
-
 $route['logout'] = "welcome/logout";
 $route['(.*)'] = "welcome/index/$1";
 $route['default_controller'] = "welcome";

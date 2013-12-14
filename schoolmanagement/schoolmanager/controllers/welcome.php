@@ -1,7 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Welcome extends MY_Controller {
-    public function __construct(){
+class Welcome extends MY_Controller
+{
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model('Database');
         $this->load->helper('utility');
@@ -39,8 +41,7 @@ class Welcome extends MY_Controller {
         }
         else
         {
-             //header('location: /login');
-            echo 'ji';exit();
+            echo "Goto login page";
         }
 
     }
@@ -77,15 +78,13 @@ class Welcome extends MY_Controller {
 
     public function setStudentSessionData($userId)
     {
-        $studentInfo = $this->Database->getStudentInfo($userId);
-        $studentId = $_SESSION['studentId'] = $studentInfo['id'];
-        $_SESSION['schoolId'] = $studentInfo['school_id'];
 
-        if(!isset($_SESSION['classId']))
-        {
-            $userDetails = $this->Database->getClassAndSectionOfStudent($studentId);
-            $_SESSION['classId'] = $userDetails['classId'];
-        }
+        $studentInfo = $this->Database->getStudentInfo($userId);
+        $_SESSION['studentId'] = $studentInfo['id'];
+        $_SESSION['schoolId'] = $studentInfo['school_id'];
+        $userDetails = $this->Database->getClassAndSectionOfStudent($_SESSION['studentId']);
+        $_SESSION['classId'] = $userDetails['classId'];
+        $_SESSION['sectionId'] = $userDetails['sectionId'];
 
     }
 
@@ -98,6 +97,10 @@ class Welcome extends MY_Controller {
 
         $this->data['examSeriesDetails'] = $examSeriesDetails;
         $this->data['subjects'] = $this->Database->getAllSubject($_SESSION['schoolId'],$_SESSION['classId']);
+
+        $date['endDate'] = date('Y-m-d');
+        $date['startDate'] = date('Y-m-d',strtotime('-1 month'));
+        $this->data['date'] = $date;
 
         $structure['content'] = 'welcome_message';
         $this->load_structure($structure);
@@ -118,6 +121,9 @@ class Welcome extends MY_Controller {
     private function teacher()
     {
         $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['userId']);
+        $_SESSION['teacherUserId'] = $_SESSION['userId'];
+        $_SESSION['schoolId'] = $this->data['teacherInfo'][0]['schoolId'];
+        $_SESSION['teacherId'] = $this->data['teacherInfo'][0]['teacherId'];
         $this->data['controller'] = 'students';
         $structure['content'] = 'teacher';
         $this->load_structure($structure);
@@ -131,21 +137,24 @@ class Welcome extends MY_Controller {
         $structure['content'] = 'class';
         $this->load_structure($structure);
     }
+
     public function logout()
     {
         session_destroy();
     }
 
-    public function examSeries($examSeriesId){
+    public function examSeries($examSeriesId)
+    {
 
-        $examDetails = $this->Database->getExamsForStudent($_SESSION['schoolId'] ,$_SESSION['classId'] );
+       /*
+       $examDetails = $this->Database->getExamsForStudent($_SESSION['schoolId'] ,$_SESSION['classId'] );
         $exams = array();
         foreach($examDetails as $exam){
             $exams[] = $exam['id'];
         }
 
         $marks = $this->Database->getMarksScoredByStudent($_SESSION['studentId'],$exams);
-
+      */
         $this->data['marksInExamSeries'] = $this->Database->getMarksScoredByStudentInExamSeries($_SESSION['studentId'], $examSeriesId);
 
         $structure['content'] = 'marks';
@@ -154,6 +163,7 @@ class Welcome extends MY_Controller {
 
     public function subject($subjectId)
     {
+        $_SESSION['subjectId'] = $subjectId;
         $structure = array();
         if(strtolower($subjectId) == 'all'){
             $this->data['marksInAllsubjects'] = $this->Database->getMarksScoredInAllSubject($_SESSION['studentId']);
@@ -163,6 +173,8 @@ class Welcome extends MY_Controller {
         {
             $this->data['marksInsubject'] = $this->Database->getMarksScoredInSubject($_SESSION['studentId'],$subjectId);
             $structure['content'] = 'subject';
+            $teacherData = $this->Database->getTeacherFromSubject($subjectId);
+            $_SESSION['teacherUserId'] = $teacherData['user_id'];
         }
 
         $this->load_structure($structure);
@@ -179,28 +191,69 @@ class Welcome extends MY_Controller {
 
     public function classAttendance($classSection)
     {
+
         list($className,$sectionName) = explode('-',$classSection);
+        $_SESSION['className'] = $className;
+        $_SESSION['sectionName'] = $sectionName;
         $this->data['class'] = $this->Database->getStudentsByClassSectionId($className,$sectionName);
+        $_SESSION['cs_lookup_id'] = $this->data['class'][0]['cs_lookup_id'];
         $studentList = array();
         foreach($this->data['class'] as $student)
         {
             $studentList[]=$student['id'];
         }
 
-        if(!empty($_GET['date']))
+        if(!empty($_GET['startDate']))
         {
-            $date = $_GET['date'];
+            $date['startDate'] = $_GET['startDate'];
         }
         else
         {
-            $date = date('Y-m-d');
+            $date['startDate'] = date('Y-m-d');
         }
 
-        $this->data['classAttendance'] = $this->Database->getClassAttendance($studentList,$_SESSION['userId'],$date);
+        $teacherData = $this->Database->getSubjectByTeacherId($_SESSION['teacherId']);
+        $_SESSION['subjectId'] = $teacherData['subject_id'];
+        $this->data['classAttendance'] = $this->Database->getClassAttendance($studentList,$_SESSION['teacherUserId'],$date);
         $this->data['date'] = $date;
         $structure['content'] = 'classAttendance';
         $this->load_structure($structure);
+    }
 
+    public function studentAttendance($studentId = false)
+    {
+        $date = array();
+
+        if(!empty($_GET['startDate']))
+        {
+            $date['startDate'] = $_GET['startDate'];
+        }
+        else
+        {
+            $date['startDate'] = date('Y-m-d',strtotime('-1 month'));
+        }
+
+        if(!empty($_GET['endDate']))
+        {
+            $date['endDate'] = $_GET['endDate'];
+        }
+        else
+        {
+            $date['endDate'] = date('Y-m-d');
+        }
+
+        if(false !== $studentId)
+        {
+            $studentList[] = $studentId;
+        }
+        else{
+            $studentList[] = $_SESSION['studentId'];
+        }
+
+        $this->data['studentAttendanceData'] = $this->Database->getClassAttendance($studentList,$_SESSION['teacherUserId'],$date);
+        $this->data['date'] = $date;
+        $structure['content'] = 'studentAttendance';
+        $this->load_structure($structure);
     }
 }
 

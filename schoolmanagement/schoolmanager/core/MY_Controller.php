@@ -18,10 +18,10 @@ class MY_Controller extends CI_Controller
         $this->structure['footer'] = 'footer';
     }
 
-    public function load_structure($structure)
+    public function load_structure($views)
     {
         $this->load->view(TEMPLATE.'/'.COMMON.'/'.$this->structure['header'],$this->data);
-        foreach($structure as $view){
+        foreach($views as $view){
             $this->load->view(TEMPLATE.'/'.$view,$this->data);
         }
         $this->load->view(TEMPLATE.'/'.COMMON.'/'.$this->structure['footer'],$this->data);
