@@ -31,6 +31,13 @@ class Database extends CI_Model
         return $this->db->get('user')->row_array();
     }
 
+    public function getUserDataByUsername($username)
+    {
+        $this->db->select('id,encoded_id,role_id')
+            ->where(array('username' =>$username));
+        return $this->db->get('user')->row_array();
+    }
+
     public function getUserTypeInfo($userType,$userId)
     {
         return $this->db->get_where($userType,array('user_id'=>$userId))->row_array();
@@ -168,8 +175,9 @@ class Database extends CI_Model
 
     public function getStudentsForParent($parentId)
     {
-        $this->db->select('*')->from('parent_student_lookup')
+        $this->db->select('user.id,user.username,student.fname')->from('parent_student_lookup')
                 ->join('student','student.id = parent_student_lookup.student_id')
+                ->join('user','student.user_id = user.id')
                 ->where('parent_id = '.$parentId);
         $query = $this->db->get();
         return $this->getResultArray($query);
@@ -231,6 +239,11 @@ class Database extends CI_Model
         return $this->getResultArray($query);
     }
 
+    public function getTeacherInfo($userId)
+    {
+        return $this->getUserTypeInfo('teacher',$userId);
+    }
+
     public function getTeacherFromSubject($subjectId)
     {
         $this->db->select('teacher.*')->from('tcs_lookup')
@@ -248,6 +261,64 @@ class Database extends CI_Model
             ->join('sc_lookup','scs_lookup.sc_lookup_id = sc_lookup.id')
             ->where(array('tcs_lookup.cs_lookup_id'=>$_SESSION['cs_lookup_id'],'tcs_lookup.teacher_id'=>$teacherId,'tcs_lookup.school_id'=>$_SESSION['schoolId']));
             return $this->db->get()->row_array();
+
+    }
+
+    public function getClassSectionLookupIdByName($className,$sectionName)
+    {
+        $this->db->select('cs_lookup.id')->from('cs_lookup')
+            ->join('class','class.id = cs_lookup.class_id')
+            ->join('section','section.id = cs_lookup.section_id')
+            ->where(array('class.name'=>$className,'section.name'=>$sectionName));
+        return $this->db->get()->row_array();
+    }
+
+    public function getClassSectionLookupIdById($classId,$sectionId)
+    {
+        $this->db->select('id')->from('cs_lookup')
+            ->where(array('class_id'=>$classId,'section_id'=>$sectionId));
+        return $this->db->get()->row_array();
+    }
+
+    public function getDiscussionListingForDiscussionGroup($discussionGroup)
+    {
+        $whereCondition = array('discussion_forum.creator_user_id'=>$_SESSION['loggedInUserId'],'discussion_forum_user_mapping.user_id'=>$_SESSION['loggedInUserId']);
+
+        if($discussionGroup != 'all')
+        {
+           $this->db->join('discussion_forum_cs_lookup_mapping','discussion_forum_cs_lookup_mapping.discussion_forum_id = discussion_forum.id');
+           $whereCondition['discussion_forum_cs_lookup_mapping.cs_lookup_id'] = $discussionGroup;
+        }
+
+        $this->db->select('discussion_forum.*, count(discussion_comment.id) as commnet_count')->from('discussion_forum')
+            ->join('discussion_comment','discussion_forum.id = discussion_comment.discussion_forum_id','left')
+            ->join('discussion_forum_user_mapping','discussion_forum.id = discussion_forum_user_mapping.discussion_forum_id')
+            ->or_where($whereCondition)
+            ->group_by('discussion_comment.discussion_forum_id')
+            ->order_by('discussion_forum.update_date');
+        $query = $this->db->get();
+        return $this->getResultArray($query);
+    }
+
+    public function getDiscussionData($discussionSeoTitle)
+    {
+        $this->db->select('discussion_forum.*,user.username')->from('discussion_forum')
+            ->join('user','user.id = discussion_forum.creator_user_id')
+            ->where(array('discussion_forum.seo_title'=>$discussionSeoTitle));
+        return $this->db->get()->row_array();
+    }
+
+    public function getDiscussionCommentData($discussionTopicId)
+    {
+        $this->db->select('discussion_comment.*,user.username')->from('discussion_comment')
+            ->join('user','user.id = discussion_comment.creator_user_id')
+            ->where(array('discussion_comment.discussion_forum_id'=>$discussionTopicId));
+        $query = $this->db->get();
+        return $this->getResultArray($query);
+    }
+
+    public function getDiscussionData1($discussionId)
+    {
 
     }
 }

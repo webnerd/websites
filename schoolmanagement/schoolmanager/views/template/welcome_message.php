@@ -16,3 +16,6 @@
            </li>
         <?php } ?>
     </ul>
+
+<p>Discussions</p>
+    <a href="/discussion-listing/all">All (Related to you.)</a>

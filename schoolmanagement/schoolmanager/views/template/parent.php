@@ -12,5 +12,5 @@
 foreach($studentInfo as $student)
 {
 ?>
-    <li><a href='/student/<?php echo $student['user_id'];?>'> <?php echo $student['fname'];?></a></li>
+    <li><a href='/<?php echo $student['username'];?>'> <?php echo $student['fname'];?></a></li>
 <?php } ?>

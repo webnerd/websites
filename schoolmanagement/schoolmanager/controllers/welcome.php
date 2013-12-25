@@ -26,22 +26,28 @@ class Welcome extends MY_Controller
      * map to /index.php/welcome/<method_name>
      * @see http://codeigniter.com/user_guide/general/urls.html
      */
-    public function index($usernameId)
+    public function index($username)
     {
-        if(isset($_SESSION['username-userid']) && $_SESSION['username-userid'] == ($usernameId))
+        $roleId = '';
+        if(isset($_SESSION['username']) && $_SESSION['username'] == ($username))
         {
-            switch($_SESSION['roleId'])
-            {
-                case ADMIN: break;
-                case STUDENT : $this->student();break;
-                case PARENT: $this->parent();break;
-                case TEACHER: $this->teacher();break;
-                default: echo 'Login failed'; break;
-            }
+            $roleId = $_SESSION['roleId'];
+            $_SESSION['userId'] = $_SESSION['loggedInUserId'];
         }
         else
         {
-            echo "Goto login page";
+            $userData = $this->Database->getUserDataByUsername($username);
+            $roleId = $userData['role_id'];
+            $_SESSION['userId'] = $userData['id'];
+        }
+
+        switch($roleId)
+        {
+            case ADMIN: break;
+            case STUDENT : $this->student();break;
+            case PARENT: $this->parent();break;
+            case TEACHER: $this->teacher();break;
+            default: echo 'Login failed'; break;
         }
 
     }
@@ -58,10 +64,10 @@ class Welcome extends MY_Controller
                 $result = $this->Database->getUserInfo($this->data);
                 $_SESSION['encodedUserId']=$this->data['encodedUserId'] = $result['encoded_id'];
                 $_SESSION['roleId']=$this->data['roleId'] = $result['role_id'];
-                $_SESSION['userId']=$this->data['id'] = $result['id'];
+                $_SESSION['loggedInUserId']=$this->data['id'] = $result['id'];
                 $_SESSION['username'] = $this->data['username'] = $result['username'];
                 $_SESSION['username-userid'] = $_SESSION['username'].'-'.$_SESSION['userId'];
-                header('location: /'.$_SESSION['username-userid']);
+                header('location: /'.$_SESSION['username']);
                 exit();
             }
             else
@@ -71,7 +77,7 @@ class Welcome extends MY_Controller
         }
         else
         {
-            header('location: /'.$_SESSION['username'].'-'.$_SESSION['userId']);
+            header('location: /'.$_SESSION['username']);
             exit();
         }
     }
@@ -91,7 +97,7 @@ class Welcome extends MY_Controller
     public function student($userId=false)
     {
         if(!$userId)
-        $userId = $_SESSION['userId'];
+        $userId = $_SESSION['loggedInUserId'];
         $this->setStudentSessionData($userId);
         $examSeriesDetails = $this->Database->getExamSeriesForeStudent($_SESSION['schoolId'],$_SESSION['classId']);
 
@@ -112,7 +118,7 @@ class Welcome extends MY_Controller
     }
     private function parent()
     {
-        $parentInfo = $this->Database->getParentInfo($_SESSION['userId']);
+        $parentInfo = $this->Database->getParentInfo($_SESSION['loggedInUserId']);
         $this->data['studentInfo'] = $this->Database->getStudentsForParent($parentInfo['id']);
         $structure['content'] = 'parent';
         $this->load_structure($structure);
@@ -120,11 +126,10 @@ class Welcome extends MY_Controller
 
     private function teacher()
     {
-        $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['userId']);
-        $_SESSION['teacherUserId'] = $_SESSION['userId'];
-        $_SESSION['schoolId'] = $this->data['teacherInfo'][0]['schoolId'];
-        $_SESSION['teacherId'] = $this->data['teacherInfo'][0]['teacherId'];
-        $this->data['controller'] = 'students';
+        $teacherInfo = $this->Database->getTeacherInfo($_SESSION['loggedInUserId']);
+        $_SESSION['teacherUserId'] = $_SESSION['loggedInUserId'];
+        $_SESSION['schoolId'] = $teacherInfo['school_id'];
+        $_SESSION['teacherId'] = $teacherInfo['id'];
         $structure['content'] = 'teacher';
         $this->load_structure($structure);
     }
@@ -134,7 +139,7 @@ class Welcome extends MY_Controller
         list($className,$sectionName) = explode('-',$classSection);
         $this->data['class'] = $this->Database->getStudentsByClassSectionId($className,$sectionName);
         $this->data['classSection'] = $classSection;
-        $structure['content'] = 'class';
+        $structure['content'] = 'students';
         $this->load_structure($structure);
     }
 
@@ -181,17 +186,64 @@ class Welcome extends MY_Controller
     }
 
 
+    public function score()
+    {
+        $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['loggedInUserId']);
+        $this->data['controller'] = 'students';
+        $structure['content'] = 'allClass';
+        $this->load_structure($structure);
+    }
+
+    public function discussionGroup()
+    {
+        switch($_SESSION['roleId'])
+        {
+            case ADMIN: break;
+            case STUDENT : break;
+            case PARENT: break;
+            case TEACHER: $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['loggedInUserId']);break;
+            default: echo 'Login failed'; break;
+        }
+
+        $this->data['controller'] = 'discussion-listing';
+        $this->data['showAll'] = true;
+        $structure['content'] = 'allClass';
+        $this->load_structure($structure);
+    }
+
+    public function discussionListing($discussionGroup = false)
+    {
+        if($discussionGroup && $discussionGroup !='all')
+        {
+            list($className,$sectionName) = explode('-',$discussionGroup);
+            $csLookup = $this->Database->getClassSectionLookupIdByName($className,$sectionName);
+            $discussionGroup = $csLookup['id'];
+        }
+
+        $this->data['discussionListing'] = $this->Database->getDiscussionListingForDiscussionGroup($discussionGroup);
+        $this->data['controller'] = 'discussion';
+        $structure['content'] = 'discussionListing';
+        $this->load_structure($structure);
+    }
+
+    public function discussion($discussionSeoTitle)
+    {
+        $discussionTopicData = $this->Database->getDiscussionData($discussionSeoTitle);
+        $this->data['discussionCommentData'] = $this->Database->getDiscussionCommentData($discussionTopicData['id']);
+        $this->data['discussionTopicData'] = $discussionTopicData;
+        $structure['content'] = 'discussion';
+        $this->load_structure($structure);
+    }
     public function attendance()
     {
-        $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['userId']);
+        $this->data['teacherInfo'] = $this->Database->getTeacherClassAssociation($_SESSION['loggedInUserId']);
         $this->data['controller'] = 'attendance/class';
-        $structure['content'] = 'teacher';
+        $structure['content'] = 'allClass';
         $this->load_structure($structure);
     }
 
     public function classAttendance($classSection)
     {
-
         list($className,$sectionName) = explode('-',$classSection);
         $_SESSION['className'] = $className;
         $_SESSION['sectionName'] = $sectionName;
