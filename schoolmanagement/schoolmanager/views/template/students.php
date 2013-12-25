@@ -21,7 +21,7 @@
         <?php $i=0; foreach($class as $student){?>
         <tr class="student_info <?php echo (($i++)%2 == 0)?'even':'odd';?>">
 
-                <td> <a href="/student/<?php echo $student['id'];?>"><?php echo $student['roll_no'];?> </a></td>
+                <td> <a href="/<?php echo $student['username'];?>"><?php echo $student['roll_no'];?> </a></td>
                 <td><?php echo $student['fname'];?></td>
                 <td><?php echo $student['lname'];?></td>
 

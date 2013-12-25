@@ -198,11 +198,12 @@ class Database extends CI_Model
 
     public function getStudentsByClassSectionId($className,$sectionName)
     {
-        $this->db->select('student.*,cs_lookup.id as cs_lookup_id')->from('css_lookup')
+        $this->db->select('user.username,student.*,cs_lookup.id as cs_lookup_id')->from('css_lookup')
                     ->join('cs_lookup','cs_lookup.id = css_lookup.cs_lookup_id')
                     ->join('section','section.id = cs_lookup.section_id')
                     ->join('class','class.id = cs_lookup.class_id')
                     ->join('student','student.id = css_lookup.student_id')
+                    ->join('user', 'student.user_id = user.id')
                     ->where(array('css_lookup.status'=>'1','section.name'=>$sectionName,'class.name' => $className))
                     ->order_by('student.roll_no');
         $query = $this->db->get();
@@ -227,10 +228,11 @@ class Database extends CI_Model
             $whereCondition['DATE(attendance_master.date)'] = $date['startDate'];
         }
 
-        $this->db->select('student.fname,student.lname,student.roll_no,student.id,attendance_data.status,attendance_data.reason,attendance_master.date')->from('attendance_master')
+        $this->db->select('user.username,student.fname,student.lname,student.roll_no,student.id,attendance_data.status,attendance_data.reason,attendance_master.date')->from('attendance_master')
             ->join('teacher','teacher.id = attendance_master.teacher_id')
             ->join('attendance_data','attendance_master.id = attendance_data.attendance_master_id')
             ->join('student','student.id = attendance_data.student_id')
+            ->join('user', 'student.user_id = user.id')
             ->join('scs_lookup','scs_lookup.id = attendance_master.scs_lookup_id')
             ->where_in('attendance_data.student_id',$studentList)
             ->where( $whereCondition )

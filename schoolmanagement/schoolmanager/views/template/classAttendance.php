@@ -36,7 +36,7 @@
     <tbody>
     <?php $i=0; foreach($classAttendance as $studentAttendance) { ?>
     <tr class="<?php echo (($i++)%2) == 0?'even':'odd';?>">
-        <td> <a href="/student/<?php echo $studentAttendance['id'];?>"><?php echo $studentAttendance['roll_no'];?> </a></td>
+        <td> <a href="/<?php echo $studentAttendance['username'];?>"><?php echo $studentAttendance['roll_no'];?> </a></td>
         <td><?php echo $studentAttendance['fname'];?></td>
         <td><?php echo $studentAttendance['lname'];?></td>
         <td><?php echo $studentAttendance['status'] == 1?'Present':'Absent';?></td>

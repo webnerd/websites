@@ -8,7 +8,7 @@ class Welcome extends MY_Controller
         $this->load->model('Database');
         $this->load->helper('utility');
         //$this->output->cache(1440);
-        $this->output->enable_profiler(TRUE);
+        //$this->output->enable_profiler(TRUE);
     }
 
     /**
@@ -96,8 +96,9 @@ class Welcome extends MY_Controller
 
     public function student($userId=false)
     {
+
         if(!$userId)
-        $userId = $_SESSION['loggedInUserId'];
+        $userId = $_SESSION['userId'];
         $this->setStudentSessionData($userId);
         $examSeriesDetails = $this->Database->getExamSeriesForeStudent($_SESSION['schoolId'],$_SESSION['classId']);
 

@@ -26,7 +26,7 @@
     <?php $i=0; foreach($studentAttendanceData as $studentAttendance) { ?>
     <tr class="<?php echo (($i++)%2) == 0?'even':'odd';?>">
         <td><?php echo $studentAttendance['date'];?></td>
-        <td> <a href="/student/<?php echo $studentAttendance['id'];?>"><?php echo $studentAttendance['roll_no'];?> </a></td>
+        <td> <a href="/<?php echo $studentAttendance['username'];?>"><?php echo $studentAttendance['roll_no'];?> </a></td>
         <td><?php echo $studentAttendance['status'] == 1?'Present':'Absent';?></td>
         <td> <?php if($studentAttendance['status'] ==  0) {?>
             <?php echo $studentAttendance['reason']; }?>
